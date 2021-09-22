@@ -20,12 +20,13 @@ def maincall(**args):
     con.print(":robot: I'm not the real CARVEME, but will pretend that I am now...")
     try:
         logs = requests.get(log_url).text
-        download_gzip(model_url, args["outfile"])
-    except Exception:
+        download_gzip(model_url, args["outputfile"])
+    except Exception as e:
         con.print(
             "[dark_orange]Uh oh, looks like something went wrong downloading. "
             "Just run the cell again and everything should work :smile:."
         )
+        con.print(e)
         return
     con.print(logs)
 
