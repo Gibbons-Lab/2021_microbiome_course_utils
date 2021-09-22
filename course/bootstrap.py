@@ -1,6 +1,7 @@
 """Bootstrap some dependencies on Colab."""
 
 import os
+import shutil
 from .utils import download, con
 
 prodigal_url = (
@@ -25,7 +26,9 @@ def main():
     if am_i_colab():
         download(prodigal_url, "/usr/local/bin/prodigal")
         os.chmod("/usr/local/bin/prodigal", 755)
-        con.print(":hammer: Set up [green]prodigal[/green].")
+        con.log(":hammer: Set up [green]prodigal[/green].")
+        shutil.rmtree("/content/sample_data")
+        con.log(":broom: All clean now.")
     else:
         con.print(
             ":fearful: This does not look like Colab, I better not touch anything.")
