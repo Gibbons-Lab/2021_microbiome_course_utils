@@ -1,17 +1,16 @@
 """A fake CARVEME that just gets cached models."""
 
-from .utils import download, gunzip, con
+from .utils import download_gzip, con
 import argparse
 import os
 import requests
-from tempfile import TemporaryFile
 
 assembly = os.environ["ASSEMBLY"]
 model_url = (
     "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
     "raw/main/data/carveme_models/{}.xml.gz"
 ).format(assembly)
-log_url = model_url = (
+log_url = (
     "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
     "raw/main/data/carveme_models/{}.log"
 ).format(assembly)
@@ -19,11 +18,16 @@ log_url = model_url = (
 
 def maincall(**args):
     """Download the model and log and print the output."""
-    logs = requests.get(log_url).text
-    with TemporaryFile(suffix="xml.gz") as tfile:
-        download(model_url, str(tfile))
-        gunzip(str(tfile), args["outfile"])
     con.print(":robot: I'm not the real CARVEME, but will pretend that I am now...")
+    try:
+        logs = requests.get(log_url).text
+        download_gzip(model_url, args["outfile"])
+    except Exception:
+        con.print(
+            "[orange]Uh oh, looks like something went wrong downloading. "
+            "Just run the cell again and everything should work :smile:."
+        )
+        return
     con.print(logs)
 
 

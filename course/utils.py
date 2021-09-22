@@ -5,6 +5,7 @@ import pandas as pd
 import os
 import requests
 import shutil
+from tempfile import TemporaryFile
 from hashlib import sha256
 from rich.console import Console
 
@@ -38,20 +39,17 @@ secret_names = {
 }
 
 
-def download(url, filename):
+def download_gzip(url, filename):
     """Download a URL to a file."""
     req = requests.get(url, stream=True)
-    with open(filename, 'wb') as f:
-        for chunk in req.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
-                f.flush()
-
-
-def gunzip(infile, outfile):
-    """Extract gzipped file."""
-    with gzip.open(infile, "rb") as inf, open(outfile, "wb") as outf:
-        shutil.copyfileobj(inf, outf)
+    with TemporaryFile(suffix="xml.gz") as tfile:
+        with open(str(tfile), 'wb') as f:
+            for chunk in req.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+                    f.flush()
+        with gzip.open(str(tfile), "rb") as inf, open(filename, "wb") as outf:
+            shutil.copyfileobj(inf, outf)
 
 
 def gimme_genome(name):
@@ -87,12 +85,15 @@ def gimme_genome(name):
         for s in assembly["classification"].str.split(";")
     })
     try:
-        download(assembly_url.format(assembly), "data/{}.fna".format(assembly))
+        download_gzip(
+            assembly_url.format(assembly),
+            "data/{}.fna".format(assembly)
+        )
     except Exception:
         con.print(
             "[orange]Uh oh, looks like something went wrong downloading. "
             "Just run the cell again and everything should work :smile:."
-            )
+        )
         return
     con.print("Saved the assembly to [green]data/{}.fna[/green].".format(assembly))
     con.print(
