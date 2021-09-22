@@ -9,7 +9,10 @@ from hashlib import sha256
 from rich.console import Console
 
 num_genomes = 950
-assemblies = pd.read_csv("data/curated_assemblies.csv")
+assemblies = pd.read_csv(
+    "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
+    "raw/main/data/curated_assemblies.csv"
+)
 assembly_url = (
     "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
     "raw/main/data/contigs/{}.fna.gz"
