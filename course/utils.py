@@ -103,7 +103,7 @@ def gimme_genome(name):
         )
         con.print(e)
         return
-    con.print("Saved the assembly to [green]data/{}.fna[/green].".format(aid))
+    con.print("Saved the assembly to [green]{}.fna[/green].".format(aid))
     con.print(
         "Wow! Your assembly is [green]{assembly}[/green] which is "
         "[green]{species}[/green] :exploding_head: \n"
