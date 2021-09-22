@@ -29,7 +29,7 @@ def main():
         con.log(":hammer: Set up [green]prodigal[/green].")
         if os.path.exists("/content/sample_data"):
             shutil.rmtree("/content/sample_data")
-        con.log(":broom: All clean now.")
+        con.log(":hammer: All clean now.")
     else:
         con.print(
             ":fearful: This does not look like Colab, I better not touch anything.")
