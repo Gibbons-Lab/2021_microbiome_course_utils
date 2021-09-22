@@ -8,7 +8,12 @@ import requests
 
 def maincall(**args):
     """Download the model and log and print the output."""
-    assembly = os.environ["ASSEMBLY"]
+    assembly = os.environ.get("ASSEMBLY")
+    if assembly is None:
+        con.print(
+            "[dark_orange]Uh oh, looks like your notebook was reset. "
+            "Just run the first cell assigning your genome again :smile:."
+        )
     model_url = (
         "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
         "raw/main/data/carveme_models/{}.xml.gz"
@@ -21,12 +26,11 @@ def maincall(**args):
     try:
         logs = requests.get(log_url).text
         download_gzip(model_url, args["outputfile"])
-    except Exception as e:
+    except Exception:
         con.print(
             "[dark_orange]Uh oh, looks like something went wrong downloading. "
             "Just run the cell again and everything should work :smile:."
         )
-        con.print(e)
         return
     con.print(logs)
 
