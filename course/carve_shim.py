@@ -24,7 +24,7 @@ def maincall(**args):
         download_gzip(model_url, args["outfile"])
     except Exception:
         con.print(
-            "[orange]Uh oh, looks like something went wrong downloading. "
+            "[dark_orange]Uh oh, looks like something went wrong downloading. "
             "Just run the cell again and everything should work :smile:."
         )
         return

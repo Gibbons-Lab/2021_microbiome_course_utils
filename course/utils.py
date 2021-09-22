@@ -43,12 +43,12 @@ def download_gzip(url, filename):
     """Download a URL to a file."""
     req = requests.get(url, stream=True)
     with TemporaryFile(suffix="xml.gz") as tfile:
-        with open(str(tfile), 'wb') as f:
-            for chunk in req.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
-                    f.flush()
-        with gzip.open(str(tfile), "rb") as inf, open(filename, "wb") as outf:
+        for chunk in req.iter_content(chunk_size=1024):
+            if chunk:
+                tfile.write(chunk)
+                tfile.flush()
+        tfile.seek(0)
+        with gzip.open(tfile, "rb") as inf, open(filename, "wb") as outf:
             shutil.copyfileobj(inf, outf)
 
 
@@ -66,41 +66,49 @@ def gimme_genome(name):
 
     """
     if name == "[YOUR NAME]":
-        con.print("Ehem, I do need you to input your name... :raised_eyebrow:")
+        con.print(
+            "Ehem, I do need you to input your [bold red]name[/bold red]... "
+            ":face_with_raised_eyebrow:"
+        )
         return
 
     if name not in secret_names:
-        magic_number = int(sha256(name.encode).hexdigest(), 16) % num_genomes
-        con.print("Hi, {}! Welcome to the course :tada:".format(name))
+        magic_number = int(sha256(name.encode()).hexdigest(), 16) % num_genomes
+        con.print(
+            "Hi, [bold royal_blue1]{}[/bold royal_blue1]! "
+            "Welcome to the course :tada:".format(name))
     else:
         magic_number = secret_names[name]
-        con.print("Oooh, you are an instructor :star_struck: Thanks for helping out!")
+        con.print("Oooh, you are an instructor :star-struck: Thanks for helping out!")
 
     os.environ["MAGIC_NUMBER"] = str(magic_number)
     assembly = assemblies.iloc[magic_number]
-    os.environ["ASSEMBLY"] = assembly["assembly"]
+    aid = assembly["assembly"]
+    os.environ["ASSEMBLY"] = aid
     species = assembly["species"]
     taxa = pd.Series({
         prefix_map[s.split("__")[0]]: s.split("__")[1]
-        for s in assembly["classification"].str.split(";")
+        for s in assembly["classification"].split(";")
     })
+
     try:
         download_gzip(
-            assembly_url.format(assembly),
-            "data/{}.fna".format(assembly)
+            assembly_url.format(aid),
+            "{}.fna".format(aid)
         )
-    except Exception:
+    except Exception as e:
         con.print(
-            "[orange]Uh oh, looks like something went wrong downloading. "
+            "[dark_orange]Uh oh, looks like something went wrong downloading. "
             "Just run the cell again and everything should work :smile:."
         )
+        con.print(e)
         return
-    con.print("Saved the assembly to [green]data/{}.fna[/green].".format(assembly))
+    con.print("Saved the assembly to [green]data/{}.fna[/green].".format(aid))
     con.print(
         "Wow! Your assembly is [green]{assembly}[/green] which is "
         "[green]{species}[/green] :exploding_head: \n"
         "By the way, the full GTDB taxonomic assignment is {gtdb} :nerd_face:".format(
-            assembly=assembly, species=species, gtdb=" | ".join(taxa)
+            assembly=aid, species=species, gtdb=" | ".join(taxa)
         )
     )
-    return assembly
+    return aid

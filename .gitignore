@@ -130,3 +130,6 @@ dmypy.json
 
 # course stuff
 data
+*.xml
+*.fna
+*.faa
