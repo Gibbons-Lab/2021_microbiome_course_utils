@@ -5,19 +5,18 @@ import argparse
 import os
 import requests
 
-assembly = os.environ["ASSEMBLY"]
-model_url = (
-    "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
-    "raw/main/data/carveme_models/{}.xml.gz"
-).format(assembly)
-log_url = (
-    "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
-    "raw/main/data/carveme_models/{}.log"
-).format(assembly)
-
 
 def maincall(**args):
     """Download the model and log and print the output."""
+    assembly = os.environ["ASSEMBLY"]
+    model_url = (
+        "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
+        "raw/main/data/carveme_models/{}.xml.gz"
+    ).format(assembly)
+    log_url = (
+        "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
+        "raw/main/data/carveme_models/{}.log"
+    ).format(assembly)
     con.print(":robot: I'm not the real CARVEME, but will pretend that I am now...")
     try:
         logs = requests.get(log_url).text
@@ -121,7 +120,7 @@ def main():
     elif args.cobra:
         flavor = 'cobra'
     else:
-        flavor = config.get('sbml', 'default_flavor')
+        flavor = 'fbc2'
 
     if not args.recursive:
         if len(args.input) > 1:
