@@ -27,7 +27,8 @@ def main():
         download(prodigal_url, "/usr/local/bin/prodigal")
         os.chmod("/usr/local/bin/prodigal", 755)
         con.log(":hammer: Set up [green]prodigal[/green].")
-        shutil.rmtree("/content/sample_data")
+        if os.path.exists("/content/sample_data"):
+            shutil.rmtree("/content/sample_data")
         con.log(":broom: All clean now.")
     else:
         con.print(
