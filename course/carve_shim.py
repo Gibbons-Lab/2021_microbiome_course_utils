@@ -3,6 +3,7 @@
 from .utils import download_gzip, con
 import argparse
 import os
+import re
 import requests
 
 
@@ -22,10 +23,16 @@ def maincall(**args):
         "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
         "raw/main/data/carveme_models/{}.log"
     ).format(assembly)
-    con.print(":robot: I'm not the real CARVEME, but will pretend that I am now...")
+    report_url = (
+        "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
+        "raw/main/data/model_qualities/{}.html.gz"
+    ).format(assembly)
+
     try:
         logs = requests.get(log_url).text
+        logs = re.sub("/.+/data/generated/", "", logs)
         download_gzip(model_url, args["outputfile"])
+        download_gzip(report_url, os.path.splitext(args["outputfile"])[0] + ".html")
     except Exception:
         con.print(
             "[dark_orange]Uh oh, looks like something went wrong downloading. "
@@ -37,99 +44,175 @@ def maincall(**args):
 
 def main():
     """Execute argument parser."""
+    con.print(
+        ":robot: I'm not the real [blue]CARVEME[/blue], "
+        "but will pretend that I am now..."
+    )
 
-    parser = argparse.ArgumentParser(description="Reconstruct a metabolic model using CarveMe",
-                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description="Reconstruct a metabolic model using CarveMe",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
 
-    parser.add_argument('input', metavar='INPUT', nargs='+',
-                        help="Input (protein fasta file by default, see other options for details).\n" +
-                             "When used with -r an input pattern with wildcards can also be used.\n" +
-                             "When used with --refseq an NCBI RefSeq assembly accession is expected."
-                        )
+    parser.add_argument(
+        "input",
+        metavar="INPUT",
+        nargs="+",
+        help="Input (protein fasta file by default, see other options for details).\n"
+        + "When used with -r an input pattern with wildcards can also be used.\n"
+        + "When used with --refseq an NCBI RefSeq assembly accession is expected.",
+    )
 
     input_type_args = parser.add_mutually_exclusive_group()
-    input_type_args.add_argument('--dna', action='store_true', help="Build from DNA fasta file")
-    input_type_args.add_argument('--egg', action='store_true', help="Build from eggNOG-mapper output file")
-    input_type_args.add_argument('--diamond', action='store_true', help=argparse.SUPPRESS)
-    input_type_args.add_argument('--refseq', action='store_true', help="Download genome from NCBI RefSeq and build")
+    input_type_args.add_argument(
+        "--dna", action="store_true", help="Build from DNA fasta file"
+    )
+    input_type_args.add_argument(
+        "--egg", action="store_true", help="Build from eggNOG-mapper output file"
+    )
+    input_type_args.add_argument(
+        "--diamond", action="store_true", help=argparse.SUPPRESS
+    )
+    input_type_args.add_argument(
+        "--refseq",
+        action="store_true",
+        help="Download genome from NCBI RefSeq and build",
+    )
 
-    parser.add_argument('--diamond-args', help="Additional arguments for running diamond")
+    parser.add_argument(
+        "--diamond-args", help="Additional arguments for running diamond"
+    )
 
-    parser.add_argument('-r', '--recursive', action='store_true', dest='recursive',
-                        help="Bulk reconstruction from folder with genome files")
+    parser.add_argument(
+        "-r",
+        "--recursive",
+        action="store_true",
+        dest="recursive",
+        help="Bulk reconstruction from folder with genome files",
+    )
 
-    parser.add_argument('-o', '--output', dest='output', help="SBML output file (or output folder if -r is used)")
+    parser.add_argument(
+        "-o",
+        "--output",
+        dest="output",
+        help="SBML output file (or output folder if -r is used)",
+    )
 
     univ = parser.add_mutually_exclusive_group()
-    univ.add_argument('-u', '--universe', dest='universe', help="Pre-built universe model (default: bacteria)")
-    univ.add_argument('--universe-file', dest='universe_file', help="Reaction universe file (SBML format)")
+    univ.add_argument(
+        "-u",
+        "--universe",
+        dest="universe",
+        help="Pre-built universe model (default: bacteria)",
+    )
+    univ.add_argument(
+        "--universe-file",
+        dest="universe_file",
+        help="Reaction universe file (SBML format)",
+    )
 
     sbml = parser.add_mutually_exclusive_group()
-    sbml.add_argument('--cobra', action='store_true', help="Output SBML in old cobra format")
-    sbml.add_argument('--fbc2', action='store_true', help="Output SBML in sbml-fbc2 format")
+    sbml.add_argument(
+        "--cobra", action="store_true", help="Output SBML in old cobra format"
+    )
+    sbml.add_argument(
+        "--fbc2", action="store_true", help="Output SBML in sbml-fbc2 format"
+    )
 
-    parser.add_argument('-n', '--ensemble', type=int, dest='ensemble',
-                        help="Build model ensemble with N models")
+    parser.add_argument(
+        "-n",
+        "--ensemble",
+        type=int,
+        dest="ensemble",
+        help="Build model ensemble with N models",
+    )
 
-    parser.add_argument('-g', '--gapfill', dest='gapfill',
-                        help="Gap fill model for given media")
+    parser.add_argument(
+        "-g", "--gapfill", dest="gapfill", help="Gap fill model for given media"
+    )
 
-    parser.add_argument('-i', '--init', dest='init',
-                        help="Initialize model with given medium")
+    parser.add_argument(
+        "-i", "--init", dest="init", help="Initialize model with given medium"
+    )
 
-    parser.add_argument('--mediadb', help="Media database file")
+    parser.add_argument("--mediadb", help="Media database file")
 
-    parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', help="Switch to verbose mode")
-    parser.add_argument('-d', '--debug', action='store_true', dest='debug',
-                        help="Debug mode: writes intermediate results into output files")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        dest="verbose",
+        help="Switch to verbose mode",
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        dest="debug",
+        help="Debug mode: writes intermediate results into output files",
+    )
 
-    parser.add_argument('--soft', help="Soft constraints file")
-    parser.add_argument('--hard', help="Hard constraints file")
+    parser.add_argument("--soft", help="Soft constraints file")
+    parser.add_argument("--hard", help="Hard constraints file")
 
-    parser.add_argument('--reference', help="Manually curated model of a close reference species.")
+    parser.add_argument(
+        "--reference", help="Manually curated model of a close reference species."
+    )
 
-    parser.add_argument('--default-score', type=float, default=-1.0, help=argparse.SUPPRESS)
-    parser.add_argument('--uptake-score', type=float, default=0.0, help=argparse.SUPPRESS)
-    parser.add_argument('--soft-score', type=float, default=1.0, help=argparse.SUPPRESS)
-    parser.add_argument('--reference-score', type=float, default=0.0, help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--default-score", type=float, default=-1.0, help=argparse.SUPPRESS
+    )
+    parser.add_argument(
+        "--uptake-score", type=float, default=0.0, help=argparse.SUPPRESS
+    )
+    parser.add_argument("--soft-score", type=float, default=1.0, help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--reference-score", type=float, default=0.0, help=argparse.SUPPRESS
+    )
 
-    parser.add_argument('--blind-gapfill', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument("--blind-gapfill", action="store_true", help=argparse.SUPPRESS)
 
     args = parser.parse_args()
 
     if args.gapfill and args.ensemble:
-        parser.error('Gap fill and ensemble generation cannot currently be combined (not implemented yet).')
+        parser.error(
+            "Gap fill and ensemble generation cannot currently "
+            "be combined (not implemented yet)."
+        )
 
     if (args.soft or args.hard) and args.ensemble:
-        parser.error('Soft/hard constraints and ensemble generation cannot currently be combined (not implemented yet).')
+        parser.error(
+            "Soft/hard constraints and ensemble generation cannot currently be "
+            "combined (not implemented yet)."
+        )
 
     if args.mediadb and not args.gapfill:
-        parser.error('--mediadb can only be used with --gapfill')
+        parser.error("--mediadb can only be used with --gapfill")
 
     if args.recursive and args.refseq:
-        parser.error('-r cannot be combined with --refseq')
+        parser.error("-r cannot be combined with --refseq")
 
     if args.egg:
-        input_type = 'eggnog'
+        input_type = "eggnog"
     elif args.dna:
-        input_type = 'dna'
+        input_type = "dna"
     elif args.diamond:
-        input_type = 'diamond'
+        input_type = "diamond"
     elif args.refseq:
-        input_type = 'refseq'
+        input_type = "refseq"
     else:
-        input_type = 'protein'
+        input_type = "protein"
 
     if args.fbc2:
-        flavor = 'fbc2'
+        flavor = "fbc2"
     elif args.cobra:
-        flavor = 'cobra'
+        flavor = "cobra"
     else:
-        flavor = 'fbc2'
+        flavor = "fbc2"
 
     if not args.recursive:
         if len(args.input) > 1:
-            parser.error('Use -r when specifying more than one input file')
+            parser.error("Use -r when specifying more than one input file")
 
     maincall(
         inputfile=args.input[0],
@@ -152,9 +235,9 @@ def main():
         soft=args.soft,
         hard=args.hard,
         reference=args.reference,
-        ref_score=args.reference_score
+        ref_score=args.reference_score,
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
