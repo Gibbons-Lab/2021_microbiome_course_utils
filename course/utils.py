@@ -18,6 +18,10 @@ assembly_url = (
     "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
     "raw/main/data/contigs/{}.fna.gz"
 )
+exchange_url = (
+    "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
+    "raw/main/data/curated_exchanges.csv"
+)
 prefix_map = pd.Series({
     "d": "domain",
     "p": "phylum",
@@ -106,12 +110,11 @@ def gimme_genome(name):
             assembly_url.format(aid),
             "{}.fna".format(aid)
         )
-    except Exception as e:
+    except Exception:
         con.print(
             "[dark_orange]Uh oh, looks like something went wrong downloading. "
             "Just run the cell again and everything should work :smile:."
         )
-        con.print(e)
         return
     con.print("Saved the assembly to [green]{}.fna[/green].".format(aid))
     con.print(
@@ -122,3 +125,18 @@ def gimme_genome(name):
         )
     )
     return aid
+
+
+def gimme_exchanges():
+    """Download the exchanges for all assemblies."""
+    con.print(":hammer: Sure, let me colect them from everybody real quick...")
+    try:
+        download_gzip(exchange_url, "all_exchanges.csv")
+    except Exception:
+        con.print(
+            "[dark_orange]Uh oh, looks like something went wrong downloading. "
+            "Just run the cell again and everything should work :smile:."
+        )
+        return
+    con.print(
+        "Okay, summarized all exchange fluxes to [green]all_exchanges.csv[/green].")
