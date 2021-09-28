@@ -129,14 +129,15 @@ def gimme_genome(name):
 
 def gimme_exchanges():
     """Download the exchanges for all assemblies."""
-    con.print(":hammer: Sure, let me colect them from everybody real quick...")
+    con.print(":hammer: Sure, let me collect them from everybody real quick...")
     try:
-        download_gzip(exchange_url, "all_exchanges.csv")
-    except Exception:
+        download(exchange_url, "all_exchanges.csv")
+    except Exception as e:
         con.print(
             "[dark_orange]Uh oh, looks like something went wrong downloading. "
             "Just run the cell again and everything should work :smile:."
         )
+        con.print(e)
         return
     con.print(
         "Okay, summarized all exchange fluxes to [green]all_exchanges.csv[/green].")

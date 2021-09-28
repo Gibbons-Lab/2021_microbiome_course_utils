@@ -130,6 +130,7 @@ dmypy.json
 
 # course stuff
 data
+*.csv
 *.xml
 *.fna
 *.faa
