@@ -141,3 +141,4 @@ def gimme_exchanges():
         return
     con.print(
         "Okay, summarized all exchange fluxes to [green]all_exchanges.csv[/green].")
+    return pd.read_csv("all_exchanges.csv")
