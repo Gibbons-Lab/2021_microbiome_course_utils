@@ -153,3 +153,11 @@ def colormap(series):
     palette = sns.color_palette(n_colors=len(levels))
     cmap = pd.Series({l: palette[i] for i, l in enumerate(levels)})
     return pd.Series(cmap[series].values, index=series.index)
+
+
+def add_r_squared(permanova_results):
+    """Get the R2 for a PERMANOVA result."""
+    p = permanova_results
+    r2 = 1 - 1 / (1 + p[4] * p[3] / (p[2] - p[3] - 1))
+    p["R²"] = r2
+    return(p)
