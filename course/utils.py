@@ -23,6 +23,10 @@ exchange_url = (
     "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
     "raw/main/data/curated_exchanges.csv"
 )
+media_url = (
+    "https://github.com/Gibbons-Lab/2021_microbiome_course_data/"
+    "raw/main/data/carveme_media.tsv"
+)
 prefix_map = pd.Series({
     "d": "domain",
     "p": "phylum",
@@ -145,6 +149,23 @@ def gimme_exchanges():
     exc = pd.read_csv("all_exchanges.csv")
     exc["genus"] = exc.species.str.split(" ").str[0]
     return exc
+
+
+def gimme_media():
+    """Download the growth media."""
+    try:
+        download(media_url, "carveme_media.tsv")
+    except Exception as e:
+        con.print(
+            "[dark_orange]Uh oh, looks like something went wrong downloading. "
+            "Just run the cell again and everything should work :smile:."
+        )
+        con.print(e)
+        return
+    con.print(
+        "Okay, downloaded media to [green]carveme_media.tsv[/green].")
+    med = pd.read_csv("carveme_media.tsv", sep="\t")
+    return med
 
 
 def colormap(series):
