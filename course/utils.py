@@ -8,6 +8,7 @@ import shutil
 from tempfile import TemporaryFile
 from hashlib import sha256
 from rich.console import Console
+import seaborn as sns
 
 num_genomes = 950
 assemblies = pd.read_csv(
@@ -141,4 +142,15 @@ def gimme_exchanges():
         return
     con.print(
         "Okay, summarized all exchange fluxes to [green]all_exchanges.csv[/green].")
-    return pd.read_csv("all_exchanges.csv")
+    exc = pd.read_csv("all_exchanges.csv")
+    exc["genus"] = exc.species.str.split(" ").str[0]
+    exc.index = exc.assembly
+    return exc
+
+
+def colormap(series):
+    """Build a discrete colormap for a bunch of strings."""
+    levels = series.unique()
+    palette = sns.color_palette(n_colors=len(levels))
+    cmap = pd.Series({l: palette[i] for i, l in enumerate(levels)})
+    return pd.Series(cmap[series].values, index=series.index)
