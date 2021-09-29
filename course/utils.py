@@ -143,6 +143,7 @@ def gimme_exchanges():
     con.print(
         "Okay, summarized all exchange fluxes to [green]all_exchanges.csv[/green].")
     exc = pd.read_csv("all_exchanges.csv")
+    exc["genus"] = exc.species.str.split(" ").str[0]
     return exc
 
 
