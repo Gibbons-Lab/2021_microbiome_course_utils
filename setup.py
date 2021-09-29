@@ -4,4 +4,4 @@ This is a shim left here for compatibility reasons.
 
 from setuptools import setup
 
-setup(version="1.4.1")
+setup(version="1.5.0")
