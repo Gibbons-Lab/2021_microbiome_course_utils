@@ -15,7 +15,7 @@ def am_i_colab():
         os.path.exists("/content")
         and os.environ.get("HOME") == "/root"
         and "DATALAB_SETTINGS_OVERRIDES" in os.environ
-        and os.environ.get("GCE_METADATA_TIMEOUT") == "0"
+        and "COLAB_GPU" in os.environ
     )
     return state
 
